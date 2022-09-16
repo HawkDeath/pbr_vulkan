@@ -1,7 +1,9 @@
 set(APP_SOURCE
+    src/rwVulkanInstance.cpp
     src/rwWindow.cpp)
 
 set(APP_HEADERS
+    include/rwVulkanInstance.h
     include/rwInput.h
     include/rwLog.h
     include/rwWindow.h)
