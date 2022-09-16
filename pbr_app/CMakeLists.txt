@@ -1,10 +1,10 @@
 set(APP_SOURCE
-    src/Window.cpp)
+    src/rwWindow.cpp)
 
 set(APP_HEADERS
-    include/Input.h
-    include/Log.h
-    include/Window.h)
+    include/rwInput.h
+    include/rwLog.h
+    include/rwWindow.h)
 
 
 set(PBR_APP_SOURCE demo/demo1.cpp ${APP_SOURCE} ${APP_HEADERS} )

@@ -1,6 +1,6 @@
-#include <Window.h>
-#include <Input.h>
-#include <Log.h>
+#include <rwWindow.h>
+#include <rwInput.h>
+#include <rwLog.h>
 #include <memory>
 
 namespace rw {
