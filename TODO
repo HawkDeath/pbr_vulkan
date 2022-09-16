@@ -1,0 +1,7 @@
+TODO 09/16/2022:
+* Vulkan Instance - class keeps informmation about VkInstance and VkPhysicalDevice
+* Vulkn Device - 'main' vulkan class
+* RenderPass
+* Vulkan Surface
+* MemoryAllocator
+* Pipeline
