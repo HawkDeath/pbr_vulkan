@@ -1,8 +1,10 @@
 set(APP_SOURCE
+    src/rwPhysicalDevice.cpp
     src/rwVulkanInstance.cpp
     src/rwWindow.cpp)
 
 set(APP_HEADERS
+    include/rwPhysicalDevice.h
     include/rwVulkanInstance.h
     include/rwInput.h
     include/rwLog.h

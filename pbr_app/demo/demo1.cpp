@@ -2,10 +2,13 @@
 #include <rwLog.h>
 #include <memory>
 
+#include <rwVulkanInstance.h>
+
 class Demo1
 {
   const uint32_t WIDTH = 1280;
   const uint32_t HEIGHT = 720;
+
 public:
   Demo1()
   {
@@ -17,7 +20,6 @@ public:
 
   }
 
-
   void run()
   {
     while (!window.isClose())
@@ -28,9 +30,8 @@ public:
 
 private:
   rw::Window window = { "demo1", WIDTH, HEIGHT };
+  rw::VulkanInstance mInstance = { "demoApp1" };
 };
-
-
 
 
 int main()
