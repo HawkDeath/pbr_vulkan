@@ -11,9 +11,7 @@
 namespace rw
 {
 
-  namespace
-  {
-    bool enable_extension(const char* requiredExtensionName, const std::vector<VkExtensionProperties>& availableExts, std::vector<const char*>& enabledExtesions)
+  bool enable_extension(const char* requiredExtensionName, const std::vector<VkExtensionProperties>& availableExts, std::vector<const char*>& enabledExtesions)
     {
       for (auto& availableExtesion : availableExts)
       {
@@ -40,7 +38,6 @@ namespace rw
       WLOG("Extension {} not found.", requiredExtensionName);
       return false;
     }
-  }
 
   VulkanInstance::VulkanInstance(const std::string& appName, const std::unordered_map<const char*, bool>& requiredExtensions, uint32_t vulkanVersion)
   {
@@ -57,13 +54,15 @@ namespace rw
 
     mEnabledExtensions = std::vector<const char*>(glfwExt, glfwExt + glfwExtCount);
 
-    enable_extension(VK_KHR_GET_DISPLAY_PROPERTIES_2_EXTENSION_NAME, availableInstanceExtensions, mEnabledExtensions);
-
     LOG("Enabled extensions:");
     for (auto& ext : mEnabledExtensions)
     {
       LOG("\t{}", ext);
     }
+
+    enable_extension(VK_KHR_GET_DISPLAY_PROPERTIES_2_EXTENSION_NAME, availableInstanceExtensions, mEnabledExtensions);
+    enable_extension(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME, availableInstanceExtensions, mEnabledExtensions);
+
 
     VkApplicationInfo appInfo;
     appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
@@ -85,6 +84,10 @@ namespace rw
     instanceInfo.flags = VkInstanceCreateFlags(0);
 
     VK_CHECK(vkCreateInstance(&instanceInfo, nullptr, &mInstance), "Failed to create Vulkan instance");
+
+    LOG("Created a Vulkan {}.{}.{} instance", VK_VERSION_MAJOR(vulkanVersion),
+                                              VK_VERSION_MINOR(vulkanVersion),
+                                              VK_VERSION_PATCH(vulkanVersion));
 
     query_gpus();
   }
@@ -120,7 +123,23 @@ namespace rw
 
   PhysicalDevice& VulkanInstance::getSuitablePhysicalDevice(VkSurfaceKHR surface)
   {
-    return getFirstPhysicalDevice();
+    if (mGpus.empty()) RT_THROW("Physical device is not available");
+    
+    for (auto& gpu : mGpus)
+    {
+      if (gpu->getProperties().deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
+      {
+        auto queueCount = gpu->getQueueFamilyProperties().size();
+        for (uint32_t queueIdx = 0; queueIdx < queueCount; queueIdx++)
+        {
+          if (gpu->isPresentSupported(surface, queueIdx))
+          {
+            return *gpu.get();
+          }
+        }
+      }
+    }
+    return *mGpus[0].get();
   }
 
   bool VulkanInstance::isEnabledExtension(const char* extensionsName) const
