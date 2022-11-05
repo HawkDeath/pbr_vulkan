@@ -5,8 +5,10 @@
 #include <functional>
 #include <algorithm>
 
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
+#ifdef WIN32
+  #include <Windows.h>
+  #include <vulkan/vulkan_win32.h>
+#endif
 
 namespace rw
 {
@@ -28,9 +30,9 @@ namespace rw
           else
           {
             LOG("Extension {} found, enabling it.", requiredExtensionName);
-            
+            enabledExtesions.push_back(requiredExtensionName);
           }
-        // enabledExtesions.push_back(requiredExtensionName);
+         
           return true;
         }
       }
@@ -47,22 +49,17 @@ namespace rw
     std::vector<VkExtensionProperties> availableInstanceExtensions(instanceExtCount);
     VK_CHECK(vkEnumerateInstanceExtensionProperties(nullptr, &instanceExtCount, availableInstanceExtensions.data()), "Failed to check instance extesnion properties");
 
-    // mEnabledExtensions.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
+     mEnabledExtensions.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
 
-    uint32_t glfwExtCount = 0U;
-    const char** glfwExt = glfwGetRequiredInstanceExtensions(&glfwExtCount);
-
-    mEnabledExtensions = std::vector<const char*>(glfwExt, glfwExt + glfwExtCount);
+#ifdef WIN32
+     mEnabledExtensions.push_back(VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
+#endif
 
     LOG("Enabled extensions:");
     for (auto& ext : mEnabledExtensions)
     {
       LOG("\t{}", ext);
     }
-
-    enable_extension(VK_KHR_GET_DISPLAY_PROPERTIES_2_EXTENSION_NAME, availableInstanceExtensions, mEnabledExtensions);
-    enable_extension(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME, availableInstanceExtensions, mEnabledExtensions);
-
 
     VkApplicationInfo appInfo;
     appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
@@ -88,7 +85,6 @@ namespace rw
     LOG("Created a Vulkan {}.{}.{} instance", VK_VERSION_MAJOR(vulkanVersion),
                                               VK_VERSION_MINOR(vulkanVersion),
                                               VK_VERSION_PATCH(vulkanVersion));
-
     query_gpus();
   }
 
@@ -118,6 +114,15 @@ namespace rw
   PhysicalDevice& VulkanInstance::getFirstPhysicalDevice()
   {
     if (mGpus.empty()) RT_THROW("Physical device is not available");
+
+    for (auto& gpu : mGpus)
+    {
+      if (gpu->getProperties().properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
+      {
+        return *gpu.get();
+      }
+    }
+    
     return *mGpus[0].get();
   }
 
@@ -127,7 +132,7 @@ namespace rw
     
     for (auto& gpu : mGpus)
     {
-      if (gpu->getProperties().deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
+      if (gpu->getProperties().properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
       {
         auto queueCount = gpu->getQueueFamilyProperties().size();
         for (uint32_t queueIdx = 0; queueIdx < queueCount; queueIdx++)

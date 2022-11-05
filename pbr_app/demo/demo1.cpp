@@ -6,18 +6,16 @@
 
 class Demo1
 {
-  const uint32_t WIDTH = 1280;
-  const uint32_t HEIGHT = 720;
+  const uint32_t WIDTH = 1920U;
+  const uint32_t HEIGHT = 1080U;
 
 public:
   Demo1()
   {
-
   }
 
   ~Demo1()
   {
-
   }
 
   void run()

@@ -4,15 +4,26 @@
 #include <GLFW/glfw3.h>
 #include <array>
 #include <memory>
+#include <rwLog.h>
+namespace rw
+{
 
-namespace rw {
-class Input : public std::enable_shared_from_this<Input> {
-    friend class Window;
+class Input
+{
 public:
-    Input() = default;
+    explicit Input() = default;
 
-    int getKeyState(int key) {
-        return mKeys.at(key);
+    int getKeyState(int key) const
+    {
+      assert((key > -1 && key < GLFW_KEY_LAST) && "Unknow key");
+        return mKeys.at(static_cast<size_t>(key));
+    }
+
+    void setKey(const int& key, int value)
+    {
+      assert(!(key > -1 && key < GLFW_KEY_LAST) && "Unknow key");
+      LOG("Key {} has been {}", key, value);
+      mKeys[key] = value;
     }
 
 private:

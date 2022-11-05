@@ -44,8 +44,4 @@ endif()
 add_subdirectory(deps/spdlog)
 
 
-set(ASSIMP_BUILD_TESTS OFF)
-set(ASSIMP_WARNINGS_AS_ERRORS OFF)
-add_subdirectory(deps/assimp)
-
 add_subdirectory(pbr_app)

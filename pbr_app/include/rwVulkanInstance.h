@@ -31,7 +31,6 @@ namespace rw
     bool isEnabledExtension(const char* extensionsName) const;
     const std::vector<const char*>& getExtensions();
 
-
   private:
     void query_gpus();
 
